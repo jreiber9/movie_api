@@ -7,27 +7,59 @@ let Users = Models.User,
   JWTStrategy = passportJWT.Strategy,
   ExtractJWT = passportJWT.ExtractJwt;
 
+// legacy 2.9
+// passport.use(
+//   new LocalStrategy({
+//       usernameField: 'Username',
+//       passwordField: 'Password',
+//     },
+//     (Username, Password, done) => {
+//       console.log(Username + "  " + Password);
+//       Users.findOne({ Username: Username }).exec()
+//         .then((user) => {
+//         if (!user) {
+//           console.log('incorrect username');
+//           return done(null, false, { message: 'Incorrect username.'});
+//         }
+
+//         console.log('finished');
+//         return done(null, user);
+//       })
+//         .catch((error) => {
+//           console.log(error);
+//           return done(error);
+//         });
+//     }
+//   )
+// );
+
 passport.use(
   new LocalStrategy(
     {
       usernameField: 'Username',
       passwordField: 'Password',
     },
-    (Username, Password, done) => {
-      console.log(Username + "  " + Password);
-      Users.findOne({ Username: Username }).exec()
-        .then((user) => {
-        if (!user) {
-          console.log('incorrect username');
-          return done(null, false, { message: 'Incorrect username.'});
-        }
+    (username, password, callback) => {
+      console.log(`Received username: ${username}`);
+      console.log(`Received password: ${password}`);
 
-        console.log('finished');
-        return done(null, user);
-      })
+      Users.findOne({Username: username})
+        .then((user) => {
+          if (!user) {
+            console.log('Incorrect username');
+            return callback(null, false, {message: 'Incorrect username'});
+          }
+
+          if (!user.validatePassword(password)) {
+            return callback(null, false, {message: 'Incorrect password'});
+          }
+
+          console.log('finished');
+          return callback(null, user);
+        })
         .catch((error) => {
           console.log(error);
-          return done(error);
+          return callback(error);
         });
     }
   )
