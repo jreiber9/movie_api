@@ -51,6 +51,11 @@ require('./passport');
 // express validator
 const { check, validationResult } = require('express-validator');
 
+  // GET requests
+  app.get('/', (req, res) => {
+    res.send('Welcome to myFlix!!!');
+  });
+  
 
 // CREATE Mongoose
 //Add a user
@@ -306,11 +311,7 @@ app.delete('/users/:Username', passport.authenticate('jwt', { session: false }),
   // serving static files
   app.use(express.static('public'));
   
-  // GET requests
-  app.get('/', (req, res) => {
-    res.send('Welcome to myFlix!!!');
-  });
-  
+
   app.get('/documentation', (req, res) => {                  
     res.sendFile('public/documentation.html', { root: __dirname });
   });
