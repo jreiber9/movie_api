@@ -11,7 +11,7 @@ const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
 
-mongoose.connect('process.env.CONNECTION_URI', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('process.env.CONNECTION_URI' || 'mongodb://localhost:27017', { useNewUrlParser: true, useUnifiedTopology: true });
 // mongoose.connect('mongodb://localhost:27017/cfDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -52,10 +52,10 @@ require('./passport');
 // express validator
 const { check, validationResult } = require('express-validator');
 
-  // GET requests
-  app.get('/', (req, res) => {
-    res.send('Welcome to myFlix!!!');
-  });
+// GET requests
+app.get('/', (req, res) => {
+  res.send('Welcome to myFlix!!!');
+});
   
 
 // CREATE Mongoose
