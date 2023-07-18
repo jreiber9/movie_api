@@ -3,14 +3,15 @@ const express = require('express'),
   fs = require('fs'), // import built in node modules fs and path 
   path = require('path'),
   bodyParser = require('body-parser'),
-  uuid = require('uuid'),
-  dotenv = require('dotenv');
+  uuid = require('uuid');
   
 const mongoose = require('mongoose');
 const Models = require('./models.js');
   
 const Movies = Models.Movie;
 const Users = Models.User;
+
+require('dotenv').config();
 
 mongoose.connect('process.env.CONNECTION_URI', { useNewUrlParser: true, useUnifiedTopology: true });
 // mongoose.connect('mongodb+srv://myFlixadmin:1234@myflixdbjf.kifs2b0.mongodb.net/myflixDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
