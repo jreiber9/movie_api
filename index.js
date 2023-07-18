@@ -12,8 +12,9 @@ const Movies = Models.Movie;
 const Users = Models.User;
 
 require('dotenv').config();
+// console.log(process.env.CONNECTION_URI);
 
-mongoose.connect('process.env.CONNECTION_URI', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 // mongoose.connect('mongodb+srv://myFlixadmin:1234@myflixdbjf.kifs2b0.mongodb.net/myflixDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 // mongoose.connect('mongodb://localhost:27017/cfDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
