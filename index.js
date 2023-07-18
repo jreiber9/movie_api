@@ -11,7 +11,7 @@ const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
 
-require('dotenv').config();
+// require('dotenv').config();
 // console.log(process.env.CONNECTION_URI);
 
 mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
