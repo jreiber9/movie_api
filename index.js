@@ -1,13 +1,13 @@
-const express = require('express'),  
+const express = require('express'),
   morgan = require('morgan'),
   fs = require('fs'), // import built in node modules fs and path 
   path = require('path'),
   bodyParser = require('body-parser'),
   uuid = require('uuid');
-  
+
 const mongoose = require('mongoose');
 const Models = require('./models.js');
-  
+
 const Movies = Models.Movie;
 const Users = Models.User;
 
@@ -21,7 +21,7 @@ mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnified
 
 const app = express();
 
-const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), {flags: 'a'})
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), { flags: 'a' })
 
 const cors = require('cors');
 app.use(cors());
@@ -42,7 +42,7 @@ app.use(cors());
 // }));
 
 // morgan, express, body-parser
-app.use(morgan('combined', {stream: accessLogStream}));
+app.use(morgan('combined', { stream: accessLogStream }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -60,7 +60,7 @@ const { check, validationResult } = require('express-validator');
 app.get('/', (req, res) => {
   res.send('Welcome to myFlix!!!');
 });
-  
+
 
 // CREATE Mongoose
 //Add a user
@@ -72,51 +72,51 @@ app.get('/', (req, res) => {
   Email: String,
   Birthday: Date
 }*/
-app.post('/users', 
+app.post('/users',
   // Validation logic here for request
   //you can either use a chain of methods like .not().isEmpty()
   //which means "opposite of isEmpty" in plain english "is not empty"
   //or use .isLength({min: 5}) which means
   //minimum value of 5 characters are only allowed
   [
-    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username is required').isLength({ min: 5 }),
     check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
     check('Password', 'Password is required').not().isEmpty(),
     check('Email', 'Email does not appear to be valid').isEmail()
   ],
   (req, res) => {
-  
-  // check the validation object for errors
-  let errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
+    // check the validation object for errors
+    let errors = validationResult(req);
 
-  let hashedPassword = Users.hashPassword(req.body.Password);
-  Users.findOne({ Username: req.body.Username })
-    .then((user) => {
-      if (user) {
-        return res.status(400).send(req.body.Username + 'already exists');
-      } else {
-        Users.create({
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    Users.findOne({ Username: req.body.Username })
+      .then((user) => {
+        if (user) {
+          return res.status(400).send(req.body.Username + 'already exists');
+        } else {
+          Users.create({
             Username: req.body.Username,
             Password: hashedPassword,
             Email: req.body.Email,
             Birthday: req.body.Birthday
           })
-          .then((user) =>{res.status(201).json(user) })
-        .catch((error) => {
-          console.error(error);
-          res.status(500).send('Error: ' + error);
-        })
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Error: ' + error);
-    });
-});
+            .then((user) => { res.status(201).json(user) })
+            .catch((error) => {
+              console.error(error);
+              res.status(500).send('Error: ' + error);
+            })
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+      });
+  });
 
 // READ 
 // Get all users Mongoose
@@ -133,7 +133,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }), (req, res) =
 
 // READ 
 // Get all Movies Mongoose
-app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) => {
+app.get('/movies', (req, res) => {
   Movies.find()
     .then((movies) => {
       res.status(201).json(movies);
@@ -147,7 +147,7 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), (req, res) 
 
 // READ
 // Get a user by username Mongoose
-app.get('/users/:Username',  passport.authenticate('jwt', { session: false }), (req, res) => {
+app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (req, res) => {
   Users.findOne({ Username: req.params.Username })
     .then((user) => {
       res.json(user);
@@ -210,67 +210,68 @@ app.get('/movies/director/:Director', passport.authenticate('jwt', { session: fa
   (required)
   Birthday: Date
 }*/
-app.put('/users/:Username', 
-  passport.authenticate('jwt', { session: false }), 
-  
+app.put('/users/:Username',
+  passport.authenticate('jwt', { session: false }),
+
   [
-    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username is required').isLength({ min: 5 }),
     check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
 
-  ], 
+  ],
 
   (req, res) => {
 
-    
 
-  // check the validation object for errors
-  let errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
-    
-  Users.findOneAndUpdate({ Username: req.params.Username }, 
-  { $set:
-    {
-      Username: req.body.Username,
-      Password: req.body.Password,
-      Email: req.body.Email,
-      Birthday: req.body.Birthday
-    },
-  },
-  { new: true }) // This line makes sure that the updated document is returned
-  .then((user) => {
-    if (!user) {
-      return res.status(400).send('Error: No user was found');
-    } else { res.json(user);}
-    })
-  .catch((err) => {
-    console.error(err);
-    res.status(500).send('Error: ' + err);
-  })
-});
+    // check the validation object for errors
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    Users.findOneAndUpdate({ Username: req.params.Username },
+      {
+        $set:
+        {
+          Username: req.body.Username,
+          Password: req.body.Password,
+          Email: req.body.Email,
+          Birthday: req.body.Birthday
+        },
+      },
+      { new: true }) // This line makes sure that the updated document is returned
+      .then((user) => {
+        if (!user) {
+          return res.status(400).send('Error: No user was found');
+        } else { res.json(user); }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      })
+  });
 
 
 // CREATE Mongoose
 // Add a movie to a user's list of favorites
 app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), (req, res) => {
   Users.findOneAndUpdate({ Username: req.params.Username }, {
-     $push: { FavoriteMovies: req.params.MovieID }
-   },
-   { new: true }// This line makes sure that the updated document is returned
+    $push: { FavoriteMovies: req.params.MovieID }
+  },
+    { new: true }// This line makes sure that the updated document is returned
   )
-  .then((updatedUser) => {
-    if (!updatedUser) {
-      return res.status(404).send("Error: User doesn't exist");
-    } else {
-      res.json(updatedUser);
-    }
-  })
-  .catch((error) => {
-    console.error(error);
-    res.status(500).send('Error: '+ error);
-  });
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        return res.status(404).send("Error: User doesn't exist");
+      } else {
+        res.json(updatedUser);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
 
 
@@ -278,21 +279,21 @@ app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { sess
 // Delete a movie from user's list of favorites
 app.delete('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), (req, res) => {
   Users.findOneAndUpdate({ Username: req.params.Username }, {
-     $pull: { FavoriteMovies: req.params.MovieID }
-   },
-   { new: true }// This line makes sure that the updated document is returned
+    $pull: { FavoriteMovies: req.params.MovieID }
+  },
+    { new: true }// This line makes sure that the updated document is returned
   )
-  .then((updatedUser) => {
-    if (!updatedUser) {
-      return res.status(404).send("Error: User doesn't exist");
-    } else {
-      res.json(updatedUser);
-    }
-  })
-  .catch((error) => {
-    console.error(error);
-    res.status(500).send('Error: '+ error);
-  });
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        return res.status(404).send("Error: User doesn't exist");
+      } else {
+        res.json(updatedUser);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
 
 // DELETE
@@ -313,24 +314,24 @@ app.delete('/users/:Username', passport.authenticate('jwt', { session: false }),
 });
 
 
-  // serving static files
-  app.use(express.static('public'));
-  
+// serving static files
+app.use(express.static('public'));
 
-  app.get('/documentation', (req, res) => {                  
-    res.sendFile('public/documentation.html', { root: __dirname });
-  });
 
-  // error handling
-  app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-  });
-  
-  
-  // listen for requests
-  const port = process.env.PORT || 8080;
-  app.listen(port, '0.0.0.0',() => {
-   console.log('Listening on Port ' + port);
-  });
+app.get('/documentation', (req, res) => {
+  res.sendFile('public/documentation.html', { root: __dirname });
+});
+
+// error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+
+// listen for requests
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0', () => {
+  console.log('Listening on Port ' + port);
+});
 
